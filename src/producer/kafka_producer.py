@@ -4,9 +4,7 @@ from sseclient import SSEClient as EventSource
 from kafka import KafkaProducer
 from kafka.errors import NoBrokersAvailable
 
-from typing import List
 
-# https://kafka-python.readthedocs.io/en/master/apidoc/KafkaProducer.html
 def create_kafka_producer(bootstrap_server):
     try:
         kafka_producer = KafkaProducer(bootstrap_servers=bootstrap_server,
@@ -15,9 +13,9 @@ def create_kafka_producer(bootstrap_server):
         print('No broker found at {}'.format(bootstrap_server))
         raise
 
-    if producer.bootstrap_connected():
+    if kafka_producer.bootstrap_connected():
         print('Kafka producer connected!')
-        return producer
+        return kafka_producer
     else:
         print('Failed to establish connection!')
         exit(1)
@@ -41,7 +39,7 @@ def construct_event(event_data):
              "title": event_data['title'],
              # "comment": event_data['comment'],
              "timestamp": event_data['meta']['dt'],  # event_data['timestamp'],
-             "user_name": event_data['user'],
+             "username": event_data['user'],
              "user_type": user_type,
              # "minor": event_data['minor'],
              "old_length": event_data['length']['old'],
@@ -90,11 +88,13 @@ def parse_command_line_arguments():
     return parser.parse_args()
 
 
-def process_events():
+def process_events(topic_name: str, producer):
     """
     Processes events from EventsSource of Wikipedia.
     :return:
     """
+    url = 'https://stream.wikimedia.org/v2/stream/recentchange'
+
     filtered_events = ['edit', 'create']
     messages_count = 0
 
@@ -108,7 +108,7 @@ def process_events():
                 if event_data['type'] in filtered_events:
                     # construct valid json event
                     event_to_send = construct_event(event_data)
-                    producer.send('wikipedia-events', value=event_to_send)
+                    producer.send(topic_name, value=event_to_send)
 
                     messages_count += 1
 
@@ -121,15 +121,11 @@ if __name__ == "__main__":
     # parse command line arguments
     args = parse_command_line_arguments()
 
-    # init producer
-    producer = create_kafka_producer(args.bootstrap_server)
-
     # init dictionary of namespaces
     namespace_dict = init_namespaces()
 
-    # used to parse user type
-
-    # consume websocket
-    url = 'https://stream.wikimedia.org/v2/stream/recentchange'
+    # init producer
+    producer = create_kafka_producer(args.bootstrap_server)
+    process_events(args.topic_name, producer)
 
     print('Messages are being published to Kafka topic')
