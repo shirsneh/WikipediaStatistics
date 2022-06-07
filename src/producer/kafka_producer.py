@@ -3,6 +3,31 @@ import argparse
 from sseclient import SSEClient as EventSource
 from kafka import KafkaProducer
 from kafka.errors import NoBrokersAvailable
+from urllib.parse import urlparse
+
+lang_codes = json.loads(open("language-and-locale-codes.json").read())
+
+
+class Event:
+    def __init__(self, event_data):
+        self.event_id = event_data['id']
+        self.timestamp = event_data['meta']['dt']
+        self.username = event_data['user']
+        self.user_type = "bot" if not event_data['bot'] else "human"
+        self.language = self.get_language(urlparse(event_data["meta"]["uri"]).netloc)
+        self.title = event_data['title']
+
+        # Parsing WikiMedia's language codes (JSON format)
+
+    @staticmethod
+    def get_language(url: str) -> str:
+        for lang in lang_codes:
+            if lang["code"] in url:
+                return lang["desc"]
+        return "English"
+
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
 
 def create_kafka_producer(bootstrap_server):
@@ -22,30 +47,28 @@ def create_kafka_producer(bootstrap_server):
 
 
 def construct_event(event_data):
-    user_types = {True: 'bot', False: 'human'}
-    # use dictionary to change assign namespace value and catch any unknown namespaces (like ns 104)
-    try:
-        event_data['namespace'] = namespace_dict[event_data['namespace']]
-    except KeyError:
-        event_data['namespace'] = 'unknown'
-
-    # assign user type value to either bot or human
-    user_type = user_types[event_data['bot']]
-
-    # define the structure of the json event that will be published to kafka topic
-    event = {"id": event_data['id'],
-             "domain": event_data['meta']['domain'],
-             "namespace": event_data['namespace'],
-             "title": event_data['title'],
-             # "comment": event_data['comment'],
-             "timestamp": event_data['meta']['dt'],  # event_data['timestamp'],
-             "username": event_data['user'],
-             "user_type": user_type,
-             # "minor": event_data['minor'],
-             "old_length": event_data['length']['old'],
-             "new_length": event_data['length']['new']}
-
-    return event
+    # user_types = {True: 'bot', False: 'human'}
+    # # use dictionary to change assign namespace value and catch any unknown namespaces (like ns 104)
+    # try:
+    #     event_data['namespace'] = namespace_dict[event_data['namespace']]
+    # except KeyError:
+    #     event_data['namespace'] = 'unknown'
+    #
+    # # assign user type value to either bot or human
+    # user_type = user_types[event_data['bot']]
+    #
+    # # define the structure of the json event that will be published to kafka topic
+    # event = {"id": event_data['id'],
+    #          "title": event_data['title'],
+    #          "timestamp": event_data['meta']['dt'],  # event_data['timestamp'],
+    #          "username": event_data['user'],
+    #          "user_type": user_type,
+    #          "lang":
+    #          "old_length": event_data['length']['old'],
+    #          "new_length": event_data['length']['new']}
+    #
+    # return event
+    pass
 
 
 def init_namespaces():
@@ -79,10 +102,10 @@ def init_namespaces():
 def parse_command_line_arguments():
     parser = argparse.ArgumentParser(description='EventStreams Kafka producer')
 
-    parser.add_argument('--bootstrap_server', default='localhost:9092', help='Kafka bootstrap broker(s) (host[:port])',
+    parser.add_argument('--bootstrap-server', default='localhost:9092', help='Kafka bootstrap broker(s) (host[:port])',
                         type=str)
-    parser.add_argument('--topic_name', default='wikipedia-events', help='Destination topic name', type=str)
-    parser.add_argument('--events_to_produce', help='Kill producer after N events have been produced', type=int,
+    parser.add_argument('--topic-name', default='wikipedia-events', help='Destination topic name', type=str)
+    parser.add_argument('--events-to-produce', help='Kill producer after N events have been produced', type=int,
                         default=1000)
 
     return parser.parse_args()
@@ -93,28 +116,29 @@ def process_events(topic_name: str, producer):
     Processes events from EventsSource of Wikipedia.
     :return:
     """
-    url = 'https://stream.wikimedia.org/v2/stream/recentchange'
+    urls = ['https://stream.wikimedia.org/v2/stream/recentchange',
+            'https://stream.wikimedia.org/v2/stream/created']
 
     filtered_events = ['edit', 'create']
     messages_count = 0
 
-    for event in EventSource(url):
-        if event.event == 'message':
-            try:
-                event_data = json.loads(event.data)
-            except ValueError:
-                pass
-            else:
-                if event_data['type'] in filtered_events:
-                    # construct valid json event
-                    event_to_send = construct_event(event_data)
-                    producer.send(topic_name, value=event_to_send)
+    for url in urls:
+        for event in EventSource(url):
+            if event.event == 'message':
+                try:
+                    event_data = json.loads(event.data)
+                except ValueError:
+                    pass
+                else:
+                    if event_data['type'] in filtered_events:
+                        event_to_send = Event(event_data)
+                        producer.send(topic_name, value=event_to_send.to_json())
 
-                    messages_count += 1
+                        messages_count += 1
 
-        if messages_count >= args.events_to_produce:
-            print('Producer will be killed as {} events were produced'.format(args.events_to_produce))
-            exit(0)
+            if messages_count >= args.events_to_produce:
+                print('Producer will be killed as {} events were produced'.format(args.events_to_produce))
+                exit(0)
 
 
 if __name__ == "__main__":
@@ -125,7 +149,7 @@ if __name__ == "__main__":
     namespace_dict = init_namespaces()
 
     # init producer
-    producer = create_kafka_producer(args.bootstrap_server)
-    process_events(args.topic_name, producer)
+    kafka_prod = create_kafka_producer(args.bootstrap_server)
+    process_events(args.topic_name, kafka_prod)
 
-    print('Messages are being published to Kafka topic')
+    print('*** Messages are being published to Kafka topic ***')

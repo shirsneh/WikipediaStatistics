@@ -79,6 +79,13 @@ public class WikipediaStatisticsTopology {
                         .groupByKey(Grouped.with(Serdes.String(), JsonSerdes.WikiEvent()))
                         .count(Materialized.as(streamName + newStreamName));
 
+        pagesCount
+                .toStream()
+                .foreach(
+                        (key, value) -> {
+                            System.out.println(key + ", " + value);
+                        });
+
         pagesCount.toStream();
     }
 
