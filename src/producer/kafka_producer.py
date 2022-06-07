@@ -1,33 +1,11 @@
-import json
 import argparse
+import json
+
 from sseclient import SSEClient as EventSource
 from kafka import KafkaProducer
 from kafka.errors import NoBrokersAvailable
-from urllib.parse import urlparse
 
-lang_codes = json.loads(open("language-and-locale-codes.json").read())
-
-
-class Event:
-    def __init__(self, event_data):
-        self.event_id = event_data['id']
-        self.timestamp = event_data['meta']['dt']
-        self.username = event_data['user']
-        self.user_type = "bot" if not event_data['bot'] else "human"
-        self.language = self.get_language(urlparse(event_data["meta"]["uri"]).netloc)
-        self.title = event_data['title']
-
-        # Parsing WikiMedia's language codes (JSON format)
-
-    @staticmethod
-    def get_language(url: str) -> str:
-        for lang in lang_codes:
-            if lang["code"] in url:
-                return lang["desc"]
-        return "English"
-
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+from src.producer.event_types import Event
 
 
 def create_kafka_producer(bootstrap_server):
@@ -44,31 +22,6 @@ def create_kafka_producer(bootstrap_server):
     else:
         print('Failed to establish connection!')
         exit(1)
-
-
-def construct_event(event_data):
-    # user_types = {True: 'bot', False: 'human'}
-    # # use dictionary to change assign namespace value and catch any unknown namespaces (like ns 104)
-    # try:
-    #     event_data['namespace'] = namespace_dict[event_data['namespace']]
-    # except KeyError:
-    #     event_data['namespace'] = 'unknown'
-    #
-    # # assign user type value to either bot or human
-    # user_type = user_types[event_data['bot']]
-    #
-    # # define the structure of the json event that will be published to kafka topic
-    # event = {"id": event_data['id'],
-    #          "title": event_data['title'],
-    #          "timestamp": event_data['meta']['dt'],  # event_data['timestamp'],
-    #          "username": event_data['user'],
-    #          "user_type": user_type,
-    #          "lang":
-    #          "old_length": event_data['length']['old'],
-    #          "new_length": event_data['length']['new']}
-    #
-    # return event
-    pass
 
 
 def init_namespaces():
@@ -117,7 +70,10 @@ def process_events(topic_name: str, producer):
     :return:
     """
     urls = ['https://stream.wikimedia.org/v2/stream/recentchange',
-            'https://stream.wikimedia.org/v2/stream/created']
+            "https://stream.wikimedia.org/v2/stream/mediawiki.page-create"]
+
+    # urls = [
+    #     "https://stream.wikimedia.org/v2/stream/mediawiki.page-create"]
 
     filtered_events = ['edit', 'create']
     messages_count = 0
@@ -130,11 +86,10 @@ def process_events(topic_name: str, producer):
                 except ValueError:
                     pass
                 else:
-                    if event_data['type'] in filtered_events:
-                        event_to_send = Event(event_data)
-                        producer.send(topic_name, value=event_to_send.to_json())
+                    event_to_send = Event.get_matching_event(event_data)
+                    producer.send(topic_name, value=event_to_send.toJSON())
 
-                        messages_count += 1
+                    messages_count += 1
 
             if messages_count >= args.events_to_produce:
                 print('Producer will be killed as {} events were produced'.format(args.events_to_produce))

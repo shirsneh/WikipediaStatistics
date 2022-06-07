@@ -1,102 +1,73 @@
 package com.magicalpipelines.model;
-
-import java.time.LocalTime;
-
 import com.google.gson.annotations.SerializedName;
 
 public class WikiEvent {
-  @SerializedName("PageTitle")
-  private String pageTitle;
+    @SerializedName("event_id")
+    private Long eventId;
+    @SerializedName("title")
+    private String title;
 
-  @SerializedName("IsBot")
-  private Boolean isBot;
+    @SerializedName("user_type")
+    private String userType;
 
-  @SerializedName("UserName")
-  private String userName;
+    @SerializedName("username")
+    private String username;
 
-  @SerializedName("Date")
-  private String date;
+    @SerializedName("timestamp")
+    private String dateTime;
 
-  @SerializedName("Time")
-  private String time;
+    @SerializedName("language")
+    private String language;
 
-  @SerializedName("Lang")
-  private String lang;
+    @SerializedName("type")
+    private String type;
 
-  @SerializedName("Type")
-  private String type;
+    @SerializedName("is_revert")
+    private Boolean isRevert;
 
-  @SerializedName("IsRevert")
-  private Boolean isRevert;
+    public Long getEventId() {
+        return eventId;
+    }
 
-  @SerializedName("RevertDetails")
-  private Boolean revertDetails;
+    public String getTitle() {
+        return title;
+    }
 
-  public String getPageTitle() {
-    return pageTitle;
-  }
+    public String getUserType() {
+        return userType;
+    }
 
-  public Boolean getIsBot() {
-    return isBot;
-  }
+    public String getUsername() {
+        return username;
+    }
 
-  public String getUserName() {
-    if (userName == null) return "";
-    return userName;
-  }
+    public String getDateTime() {
+        return dateTime;
+    }
 
-  public String getDate() {
-    return date;
-  }
+    public String getLanguage() {
+        return language;
+    }
 
-  public String getLang() {
-    return lang;
-  }
+    public String getType() {
+        return type;
+    }
 
-  public String getType() {
-    if (type == null) return "";
-    return type;
-  }
+    public Boolean getRevert() {
+        return isRevert;
+    }
 
-  public Boolean getIsRevert() {
-    return isRevert;
-  }
-
-  public Boolean getRevertDetails() {
-    return revertDetails;
-  }
-
-  public String getTime() {
-    return time;
-  }
-
-  @Override
-  public String toString() {
-    return "{"
-        + " Page ='"
-        + getPageTitle()
-        + "'"
-        + ", Language ='"
-        + getLang()
-        + "'"
-        + ", Action Type ='"
-        + getType()
-        + "'"
-        + ", Action Date ='"
-        + getDate()
-        + "'"
-        + ", User ='"
-        + getUserName()
-        + "'"
-        + ", is bot? ='"
-        + getIsBot()
-        + "'"
-        + ", is revert ='"
-        + getIsRevert()
-        + "'"
-        + ", Revert details ='"
-        + getRevertDetails()
-        + "'"
-        + "}";
-  }
+    @Override
+    public String toString() {
+        return "WikiEvent{" +
+                "eventId=" + eventId +
+                ", title='" + title + '\'' +
+                ", userType='" + userType + '\'' +
+                ", username='" + username + '\'' +
+                ", dateTime='" + dateTime + '\'' +
+                ", language='" + language + '\'' +
+                ", type='" + type + '\'' +
+                ", isRevert=" + isRevert +
+                '}';
+    }
 }

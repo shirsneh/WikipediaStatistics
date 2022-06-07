@@ -10,7 +10,7 @@ public class WikiActive {
     }
 
     public WikiActive(WikiEvent event) {
-        this.name = event.getPageTitle();
+        this.name = event.getTitle();
         this.counter = 1;
     }
 

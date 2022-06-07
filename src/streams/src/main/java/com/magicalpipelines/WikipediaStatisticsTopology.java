@@ -34,7 +34,7 @@ public class WikipediaStatisticsTopology {
                         "month-" + streamName,
                         stream.filter(
                                 (key, wikiEvent) -> {
-                                    return ChronoUnit.DAYS.between(todayDate, LocalDate.parse(wikiEvent.getDate()))
+                                    return ChronoUnit.DAYS.between(todayDate, LocalDate.parse(wikiEvent.getDateTime()))
                                             <= 30;
                                 })));
 
@@ -43,7 +43,7 @@ public class WikipediaStatisticsTopology {
                         "week-" + streamName,
                         stream.filter(
                                 (key, wikiEvent) -> {
-                                    return ChronoUnit.DAYS.between(todayDate, LocalDate.parse(wikiEvent.getDate()))
+                                    return ChronoUnit.DAYS.between(todayDate, LocalDate.parse(wikiEvent.getDateTime()))
                                             <= 7;
                                 })));
 
@@ -52,7 +52,7 @@ public class WikipediaStatisticsTopology {
                         "day-" + streamName,
                         stream.filter(
                                 (key, wikiEvent) -> {
-                                    return ChronoUnit.DAYS.between(todayDate, LocalDate.parse(wikiEvent.getDate()))
+                                    return ChronoUnit.DAYS.between(todayDate, LocalTime.parse(wikiEvent.getDateTime()))
                                             <= 1;
                                 })));
 
@@ -61,7 +61,7 @@ public class WikipediaStatisticsTopology {
                         "hour-" + streamName,
                         stream.filter(
                                 (key, wikiEvent) -> {
-                                    return ChronoUnit.HOURS.between(currTime, LocalTime.parse(wikiEvent.getTime()))
+                                    return ChronoUnit.HOURS.between(currTime, LocalTime.parse(wikiEvent.getDateTime()))
                                             <= 1;
                                 })));
 
@@ -239,6 +239,8 @@ public class WikipediaStatisticsTopology {
                 .stream("wikipedia-events", Consumed.with(Serdes.String(), JsonSerdes.WikiEvent()))
                 .selectKey((key, wikiEvent) -> "");
 
+        wikiEvents.foreach((key, value) -> System.out.println(key + ": " + value));
+
         wikiEvents.print(Printed.<String, WikiEvent>toSysOut().withLabel("WikiEvent"));
 
 //        wikiEvents.foreach(
@@ -252,14 +254,14 @@ public class WikipediaStatisticsTopology {
 
         // key by language
         KStream<String, WikiEvent> langStreams =
-                wikiEvents.selectKey((key, wikiEvent) -> wikiEvent.getLang());
+                wikiEvents.selectKey((key, wikiEvent) -> wikiEvent.getLanguage());
 
         var langTimeRangedStreams = viewStreamInTimeRange("per-language", langStreams);
         statefulOperations(langTimeRangedStreams);
 
         // key by isBot
         KStream<String, WikiEvent> userTypeStreams =
-                wikiEvents.selectKey((key, wikiEvent) -> wikiEvent.getIsBot().toString());
+                wikiEvents.selectKey((key, wikiEvent) -> wikiEvent.getUserType());
 
         var userTypeTimeRangedStreams = viewStreamInTimeRange("per-userType", userTypeStreams);
         statefulOperations(userTypeTimeRangedStreams);

@@ -9,8 +9,8 @@ public class WikiUser extends WikiActive implements Serializable {
     private boolean isBot;
 
     public WikiUser(WikiEvent wikiEvent) {
-        super(wikiEvent.getUserName());
-        this.isBot = wikiEvent.getIsBot();
+        super(wikiEvent.getUsername());
+        this.isBot = wikiEvent.getUserType().equals("bot");
     }
 
     public WikiUser(WikiUser other) {
