@@ -144,7 +144,7 @@ public class WikipediaStatisticsTopology {
                         Materialized.<String, MostActive<WikiUser>, KeyValueStore<Bytes, byte[]>>
                                 // give the state store an explicit name to make it available for interactive
                                 // queries
-                                        as("active-users")
+                                        as(streamName + "-active-users")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(JsonSerdes.MostActiveUsers()));
 
@@ -184,11 +184,11 @@ public class WikipediaStatisticsTopology {
                         Materialized.<String, MostActive<WikiActive>, KeyValueStore<Bytes, byte[]>>
                                 // give the state store an explicit name to make it available for interactive
                                 // queries
-                                        as("active-pages")
+                                        as(streamName + "-active-pages")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(JsonSerdes.MostActivePages()));
 
-//        mostActive.toStream().to("most-active-users");
+//        mostActive.toStream().to("most-active-pages");
     }
 
     public static void statefulOperations(
@@ -229,8 +229,8 @@ public class WikipediaStatisticsTopology {
         KStream<String, WikiEvent> wikiEvents =
                 // register the last changes stream
                 builder
-                        .stream("wikipedia-events", Consumed.with(Serdes.String(), JsonSerdes.WikiEvent()))
-                        .selectKey((key, wikiEvent) -> "");
+                .stream("wikipedia-events", Consumed.with(Serdes.String(), JsonSerdes.WikiEvent()))
+                .selectKey((key, wikiEvent) -> "");
 
         wikiEvents.print(Printed.<String, WikiEvent>toSysOut().withLabel("WikiEvent"));
 

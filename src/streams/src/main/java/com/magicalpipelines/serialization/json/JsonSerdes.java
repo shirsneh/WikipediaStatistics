@@ -1,8 +1,6 @@
 package com.magicalpipelines.serialization.json;
 
 import com.google.gson.reflect.TypeToken;
-import com.magicalpipelines.SortedWikiStatistic;
-import com.magicalpipelines.SortedWikiUsers;
 import com.magicalpipelines.model.*;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -32,12 +30,6 @@ public class JsonSerdes {
 //        JsonDeserializer<WikiPage> deserializer = new JsonDeserializer<>(WikiPage.class);
 //        return Serdes.serdeFrom(serializer, deserializer);
 //    }
-
-    public static Serde<SortedWikiUsers> SortedWikiUsers() {
-        JsonSerializer<SortedWikiUsers> serializer = new JsonSerializer<>();
-        JsonDeserializer<SortedWikiUsers> deserializer = new JsonDeserializer<>(SortedWikiUsers.class);
-        return Serdes.serdeFrom(serializer, deserializer);
-    }
 
 //    public static Serde<SortedWikiStatistic<WikiPage>> SortedWikiPage() {
 //        JsonSerializer<SortedWikiStatistic<WikiPage>> serializer = new JsonSerializer<>();

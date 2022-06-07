@@ -1,12 +1,9 @@
 package com.magicalpipelines.model;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 public class MostActive<T extends WikiActive> {
-    private final TreeSet<T> activity = new TreeSet<>();
+    private final TreeSet<T> activity = new TreeSet<>(Comparator.comparingInt(WikiActive::getCounter));
 
     public MostActive<T> add(final T active) {
         activity.add(active);

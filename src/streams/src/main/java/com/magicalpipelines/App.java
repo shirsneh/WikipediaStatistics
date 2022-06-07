@@ -13,9 +13,9 @@ class App {
     Topology topology = WikipediaStatisticsTopology.build();
 
     // we allow the following system properties to be overridden
-    String host = System.getProperty("host");
-    Integer port = Integer.parseInt(System.getProperty("port"));
-    String stateDir = System.getProperty("stateDir");
+    String host = "127.0.0.1";
+    Integer port = Integer.parseInt("8000");
+    String stateDir = "./local-streams";
     String endpoint = String.format("%s:%s", host, port);
 
     // set the required properties for running Kafka Streams

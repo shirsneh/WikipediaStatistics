@@ -2,10 +2,10 @@ plugins {
   id 'application'
 
   // https://plugins.gradle.org/plugin/com.github.sherter.google-java-format
-  id 'com.github.sherter.google-java-format' version '0.8'
+//  id 'com.github.sherter.google-java-format' version '0.8'
 
   // https://plugins.gradle.org/plugin/net.ltgt.errorprone
-  id 'net.ltgt.errorprone' version '0.6.1'
+//  id 'net.ltgt.errorprone' version '0.6.1'
 }
 
 ext {
@@ -14,7 +14,7 @@ ext {
 }
 
 application {
-  mainClassName = 'com.magicalpipelines.App'
+  mainClass.set('com.magicalpipelines.App')
 }
 
 repositories {
@@ -39,8 +39,8 @@ dependencies {
   // required for interactive queries (client)
   implementation 'com.squareup.okhttp3:okhttp:4.3.1'
 
-  errorprone 'com.google.errorprone:error_prone_core:2.3.2'
-  errorproneJavac 'com.google.errorprone:javac:9+181-r4173-1'
+//  errorprone 'com.google.errorprone:error_prone_core:2.3.2'
+//  errorproneJavac 'com.google.errorprone:javac:9+181-r4173-1'
 
   implementation 'org.json:json:20220320'
 
@@ -50,18 +50,18 @@ dependencies {
 
 }
 
-tasks.withType(JavaCompile).configureEach { javaCompile ->
-  javaCompile.dependsOn 'googleJavaFormat'
-  options.compilerArgs << "-Xlint:deprecation"
-  options.encoding = 'UTF-8'
-  options.errorprone {
-    disableWarningsInGeneratedCode = true
-    excludedPaths = '.*/build/generated/.*'
-  }
-}
+//tasks.withType(JavaCompile).configureEach { javaCompile ->
+//  javaCompile.dependsOn 'googleJavaFormat'
+//  options.compilerArgs << "-Xlint:deprecation"
+//  options.encoding = 'UTF-8'
+//  options.errorprone {
+//    disableWarningsInGeneratedCode = true
+//    excludedPaths = '.*/build/generated/.*'
+//  }
+//}
 
 task runFirst(type: JavaExec) {
-  main = application.mainClassName
+  mainClass = application.getMainClass()
   classpath = sourceSets.main.runtimeClasspath 
   systemProperties = [
     'host': 'localhost',
