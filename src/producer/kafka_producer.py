@@ -6,6 +6,7 @@ from kafka import KafkaProducer
 from kafka.errors import NoBrokersAvailable
 
 from src.producer.event_types import Event
+import dataclasses
 
 
 def create_kafka_producer(bootstrap_server):
@@ -69,7 +70,7 @@ def process_events(topic_name: str, producer):
     Processes events from EventsSource of Wikipedia.
     :return:
     """
-    urls = ['https://stream.wikimedia.org/v2/stream/recentchange',
+    urls = ["https://stream.wikimedia.org/v2/stream/mediawiki.recentchange",
             "https://stream.wikimedia.org/v2/stream/mediawiki.page-create"]
 
     # urls = [
@@ -86,8 +87,12 @@ def process_events(topic_name: str, producer):
                 except ValueError:
                     pass
                 else:
-                    event_to_send = Event.get_matching_event(event_data)
-                    producer.send(topic_name, value=event_to_send.toJSON())
+                    try:
+                        if event_data['type'] in filtered_events:
+                            event_to_send = Event(event_data)
+                            producer.send(topic_name, value=event_to_send.toJSON())
+                    except KeyError:
+                        pass
 
                     messages_count += 1
 

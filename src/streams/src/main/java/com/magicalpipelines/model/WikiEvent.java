@@ -2,11 +2,21 @@ package com.magicalpipelines.model;
 import com.google.gson.annotations.SerializedName;
 
 public class WikiEvent {
+    public WikiEvent(Long eventId, String title, String userType, String username, String dateTime, String language, String type, Boolean isRevert) {
+        this.eventId = eventId;
+        this.title = title;
+        this.userType = userType;
+        this.username = username;
+        this.dateTime = dateTime;
+        this.language = language;
+        this.type = type;
+        this.isRevert = isRevert;
+    }
+
     @SerializedName("event_id")
     private Long eventId;
     @SerializedName("title")
     private String title;
-
     @SerializedName("user_type")
     private String userType;
 
@@ -19,7 +29,7 @@ public class WikiEvent {
     @SerializedName("language")
     private String language;
 
-    @SerializedName("type")
+    @SerializedName("event_type")
     private String type;
 
     @SerializedName("is_revert")
