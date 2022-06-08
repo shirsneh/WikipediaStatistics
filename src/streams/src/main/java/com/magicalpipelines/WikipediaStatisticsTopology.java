@@ -13,6 +13,7 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -23,9 +24,7 @@ public class WikipediaStatisticsTopology {
     public static List<Map.Entry<String, KStream<String, WikiEvent>>> viewStreamInTimeRange(
             String streamName, KStream<String, WikiEvent> stream) {
         // branch by hour, day, week and month
-        LocalDate todayDate = LocalDate.now();
-        LocalTime currTime = LocalTime.now();
-
+        Instant currDateTime = Instant.now();
 
         List<Map.Entry<String, KStream<String, WikiEvent>>> timeRangeStreams = new ArrayList<>();
 
@@ -33,37 +32,29 @@ public class WikipediaStatisticsTopology {
                 Map.entry(
                         "month-" + streamName,
                         stream.filter(
-                                (key, wikiEvent) -> {
-                                    return ChronoUnit.DAYS.between(todayDate, LocalDate.parse(wikiEvent.getDateTime()))
-                                            <= 30;
-                                })));
+                                (key, wikiEvent) -> ChronoUnit.DAYS.between(currDateTime, Instant.parse(wikiEvent.getDateTime()))
+                                        <= 30)));
 
         timeRangeStreams.add(
                 Map.entry(
                         "week-" + streamName,
                         stream.filter(
-                                (key, wikiEvent) -> {
-                                    return ChronoUnit.DAYS.between(todayDate, LocalDate.parse(wikiEvent.getDateTime()))
-                                            <= 7;
-                                })));
+                                (key, wikiEvent) -> ChronoUnit.DAYS.between(currDateTime, Instant.parse(wikiEvent.getDateTime()))
+                                        <= 7)));
 
         timeRangeStreams.add(
                 Map.entry(
                         "day-" + streamName,
                         stream.filter(
-                                (key, wikiEvent) -> {
-                                    return ChronoUnit.DAYS.between(todayDate, LocalTime.parse(wikiEvent.getDateTime()))
-                                            <= 1;
-                                })));
+                                (key, wikiEvent) -> ChronoUnit.DAYS.between(currDateTime, Instant.parse(wikiEvent.getDateTime()))
+                                        <= 1)));
 
         timeRangeStreams.add(
                 Map.entry(
                         "hour-" + streamName,
                         stream.filter(
-                                (key, wikiEvent) -> {
-                                    return ChronoUnit.HOURS.between(currTime, LocalTime.parse(wikiEvent.getDateTime()))
-                                            <= 1;
-                                })));
+                                (key, wikiEvent) -> ChronoUnit.HOURS.between(currDateTime, Instant.parse(wikiEvent.getDateTime()))
+                                        <= 1)));
 
         return timeRangeStreams;
     }
