@@ -25,9 +25,28 @@ python3 -m pip install -r requirements.txt
 
 Run script:
 ```bash
-python3 src/producer/kafka_producer.py --bootstrap-server localhost:29092 --topic-name wikipedia-events --events-to-produce 100
+python3 wikipedia-statistics/src/main/python/kafka_Producer.py --bootstrap-server localhost:29092 --topic-name wikipedia-events --events-to-produce 100
 ```
 You should see the producer being killed after 100 events.
+
+### Web Server Displaying results
+Go to the right location:
+
+```bash
+ cd wikipedia-statistics/src/main/js/my_app
+```
+
+Install dependencies
+
+```bash
+ npm install
+```
+
+Start the web-server
+
+```bash
+ npm start
+```
 
 ## Useful Resources
 Throughout our work on this project, we found the following to be extremely helpful:
