@@ -29,32 +29,15 @@ python3 wikipedia-statistics/src/main/python/kafka_Producer.py --bootstrap-serve
 ```
 You should see the producer being killed after 100 events.
 
-### Web Server Displaying results
-Go to the right location:
+## Queries
+Now you can query the API for results:
 
-```bash
- cd wikipedia-statistics/src/main/js/my_app
 ```
-
-Install dependencies
-
-```bash
- npm install
+localhost:8000/api.wikiStats/{time}/{split-types}/{action}
 ```
-
-Start the web-server
-
-```bash
- npm start
-```
-
-## Useful Resources
-Throughout our work on this project, we found the following to be extremely helpful:
-- The GitHub of Mitch Seymour: https://github.com/mitch-seymour/mastering-kafka-streams-and-ksqldb.
-- Wikitech Event Platform/EventStreams : https://wikitech.wikimedia.org/wiki/Event_Platform/EventStreams.
-- Introduction to Apache Kafka with Wikipedia’s EventStreams service article: https://towardsdatascience.com/introduction-to-apache-kafka-with-wikipedias-eventstreams-service-d06d4628e8d9
-- Tutorial: Write a kafka streams application: https://kafka.apache.org/31/documentation/streams/tutorial.
-- The Chakra-UI Open-Source template: https://horizon-ui.com.
+time: year, month, day, hour
+split-types: all, per-language, per-user-type
+action: countPagesCreated/Modified
 
 
 
