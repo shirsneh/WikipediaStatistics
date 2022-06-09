@@ -25,7 +25,7 @@ python3 -m pip install -r requirements.txt
 
 Run script:
 ```bash
-python3 wikipedia-statistics/src/main/python/kafka_Producer.py --bootstrap-server localhost:29092 --topic-name wikipedia-events --events-to-produce 100
+python3 wikipedia-statistics/src/main/python/kafka_Producer.py --bootstrap-server localhost:29092 --topic-name wikipedia-events --events-to-produce 1000
 ```
 You should see the producer being killed after 100 events.
 
