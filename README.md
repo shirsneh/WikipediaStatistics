@@ -36,7 +36,9 @@ Now you can query the API for results:
 localhost:8000/api.wikiStats/{time}/{split-types}/{action}
 ```
 time: year, month, day, hour
+
 split-types: all, per-language, per-user-type
+
 action: countPagesCreated/Modified
 
 
