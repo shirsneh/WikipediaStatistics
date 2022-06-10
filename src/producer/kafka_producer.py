@@ -1,12 +1,9 @@
 import argparse
+from event_types import *
 import json
-
 from sseclient import SSEClient as EventSource
 from kafka import KafkaProducer
 from kafka.errors import NoBrokersAvailable
-
-from src.producer.event_types import Event
-import dataclasses
 
 
 def create_kafka_producer(bootstrap_server):
@@ -73,11 +70,9 @@ def process_events(topic_name: str, producer):
     urls = ["https://stream.wikimedia.org/v2/stream/mediawiki.recentchange",
             "https://stream.wikimedia.org/v2/stream/mediawiki.page-create"]
 
-    # urls = [
-    #     "https://stream.wikimedia.org/v2/stream/mediawiki.page-create"]
-
     filtered_events = ['edit', 'create']
     messages_count = 0
+    print('Messages are being published to Kafka topic')
 
     for url in urls:
         for event in EventSource(url):
@@ -89,7 +84,7 @@ def process_events(topic_name: str, producer):
                 else:
                     try:
                         if event_data['type'] in filtered_events:
-                            event_to_send = Event(event_data)
+                            event_to_send = WikiEvent(event_data)
                             producer.send(topic_name, value=event_to_send.toJSON())
                     except KeyError:
                         pass

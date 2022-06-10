@@ -1,15 +1,16 @@
 import json
 from dataclasses import dataclass
+from pprint import pprint
 from urllib.parse import urlparse
 
-from dataclasses_jsonschema import JsonSchemaMixin
-from pprint import pprint
+lang_codes = json.loads(open('langs.json', encoding="utf8").read())
 
-lang_codes = json.loads(open("language-and-locale-codes.json").read())
+TOPIC_URLs = {'recentchange': "https://stream.wikimedia.org/v2/stream/mediawiki.recentchange",
+              'revision': "https://stream.wikimedia.org/v2/stream/mediawiki.page-create"}
 
 
 @dataclass
-class Event():
+class WikiEvent():
     event_type: str
     event_id: int
     timestamp: str
@@ -19,7 +20,8 @@ class Event():
     title: str
 
     def __init__(self, event_data):
-        if self.get_matching_event(event_data):
+        url = event_data['meta']['uri']
+        if url == TOPIC_URLs['recentchange']:
             self.event_type = "new"
             self.event_id = event_data['rev_id']
             self.timestamp = event_data['meta']['dt']
@@ -29,14 +31,14 @@ class Event():
             self.title = event_data['page_title']
             self.is_revert = event_data['rev_is_revert']
         else:
+            self.title = event_data['page_title']
+            self.user_type = "bot" if event_data['bot'] else "user"
+            self.username = event_data['user']
+            self.is_revert = False
+            self.language = self.get_language(urlparse(event_data["meta"]["uri"]).netloc)
             self.event_type = "edit"
             self.event_id = event_data['id']
             self.timestamp = event_data['meta']['dt']
-            self.username = event_data['user']
-            self.user_type = "bot" if event_data['bot'] else "user"
-            self.language = self.get_language(urlparse(event_data["meta"]["uri"]).netloc)
-            self.title = event_data['title']
-            self.is_revert = False
 
     @staticmethod
     def get_matching_event(event_data):
@@ -50,5 +52,6 @@ class Event():
         return "English"
 
     def toJSON(self):
-        # return "{\n    " + ",\n    ".join(['{}: "{}"'.format(key, self.__dict__[key]) for key in self.__dict__.keys()]) + "}"
-        return json.dumps(self.__dict__, sort_keys=True)
+        jsonStr = json.dumps(self.__dict__, sort_keys=True, indent=4).encode('utf-8')
+        pprint(jsonStr)
+        return jsonStr
