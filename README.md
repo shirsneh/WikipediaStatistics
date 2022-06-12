@@ -41,7 +41,7 @@ You should see the producer being killed after 100 events.
 
 ### Simple Counts
 `http://localhost:8000/wiki.stats/{time}/{filter}/{type}`
-```
+
 for example, quering counts of new pages created last month:
 ```http://localhost:8000/wiki.stats/month/all/countPagesCreated```
 
