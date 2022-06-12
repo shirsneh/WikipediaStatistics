@@ -40,25 +40,24 @@ You should see the producer being killed after 100 events.
 | filterParam | mostActive requests | bot, user / English, Spanish, etc... |
 
 ### Simple Counts
-```
-http://localhost:8000/wiki.stats/{time}/{filter}/{type}
+`http://localhost:8000/wiki.stats/{time}/{filter}/{type}`
 ```
 for example, quering counts of new pages created last month:
-`http://localhost:8000/wiki.stats/month/all/countPagesCreated`
+```http://localhost:8000/wiki.stats/month/all/countPagesCreated```
 
 ### Most Active Users
-```
+`
 http://localhost:8000/wiki.stats/{time}/{filter}/{filterParam}/{type}
-```
+`
 for example, quering top users last week which are not bots:
-`http://localhost:8000/wiki.stats/week/all/user/mostActiveUsers`
+```http://localhost:8000/wiki.stats/week/all/user/mostActiveUsers```
 
 ### Most Active Pages
-```
+`
 http://localhost:8000/wiki.stats/{time}/{filter}/{filterParam}/{type}
-```
+`
 for example, quering top pages last week in English:
-`http://localhost:8000/wiki.stats/week/all/English/mostActivePages`
+```http://localhost:8000/wiki.stats/week/all/English/mostActivePages```
 
 
 
