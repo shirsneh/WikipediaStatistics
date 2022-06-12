@@ -37,8 +37,7 @@ public class JsonDeserializer<T> implements Deserializer<T> {
             return null;
         }
         Type type = destinationClass != null ? destinationClass : reflectionTypeToken;
-        String json = new String(bytes).replace("\\\"", "'");
-        return gson.fromJson(json.substring(1, json.length() - 1), type);
+        return gson.fromJson(new String(bytes), type);
     }
 
     @Override

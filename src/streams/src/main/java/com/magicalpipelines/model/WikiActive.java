@@ -1,6 +1,8 @@
 package com.magicalpipelines.model;
 
-public class WikiActive {
+import org.jetbrains.annotations.NotNull;
+
+public class WikiActive implements Comparable<WikiActive> {
     protected String name;
     protected int counter;
 
@@ -34,5 +36,8 @@ public class WikiActive {
                 '}';
     }
 
-
+    @Override
+    public int compareTo(@NotNull WikiActive wikiActive) {
+        return this.name.compareTo(wikiActive.name);
+    }
 }

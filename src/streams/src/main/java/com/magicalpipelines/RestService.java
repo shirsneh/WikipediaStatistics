@@ -38,6 +38,10 @@ class RestService {
         this.streams = streams;
     }
 
+    ReadOnlyKeyValueStore<String, Long> getStore(String storeName) {
+        return this.streams.store(StoreQueryParameters.fromNameAndType(storeName, QueryableStoreTypes.keyValueStore()));
+    }
+
     void start() {
         Javalin app = Javalin.create().start(hostInfo.port());
 
@@ -45,11 +49,17 @@ class RestService {
 
         // Query also the 'all' store in method
         /** Pie charts: all entries */
-        app.get(baseUrl + "{time}/{filter}/{countType}", this::getAllCountPercentages);
+        app.get(baseUrl + "{time}/{filter}/{countType}", this::getCount);
 
         /** Most active queries */
         app.get(baseUrl + "{time}/{filter}/{filterParam}/mostActiveUsers", this::getKeyMostActiveUsers);
         app.get(baseUrl + "{time}/{filter}/{filterParam}/mostActivePages", this::getKeyMostActivePages);
+    }
+
+    ArrayList<String> getTitles(String filter) {
+        if filter.equals("per-lang") {
+            return new ArrayList<>("")
+        }
     }
 
     <V> void getKey(
@@ -97,38 +107,51 @@ class RestService {
         }
     }
 
-    void getAllCountPercentages(Context ctx) {
+    void getCount(Context ctx) {
         String time = ctx.pathParam("time");
         String filter = ctx.pathParam("filter");
         String countType = ctx.pathParam("countType");
-        // validate input
 
-        /** get overall count */
-        String storeName = String.join("-", Arrays.asList(time, "all", countType));
-        this.<Long>getKey(streams, hostInfo, ctx, storeName, ""); // key is: ""
-        long totalCount = Long.parseLong(Objects.requireNonNull(ctx.resultString()));
+        String storeName = String.join("-", Arrays.asList(time, filter, countType));
+        ReadOnlyKeyValueStore<String, Long> store = getStore(storeName);
 
-        /** get every count */
-        Map<String, Double> countPrecentages = new HashMap<>();
+        KeyValueIterator<String, Long> it = store.all();
+        HashMap<String, Long> counts = new HashMap<>();
 
-        storeName = String.join("-", Arrays.asList(time, filter, countType));
-
-        ReadOnlyKeyValueStore<String, Long> store =
-                streams.store(
-                        StoreQueryParameters.fromNameAndType(storeName, QueryableStoreTypes.keyValueStore()));
-
-        try (KeyValueIterator<String, Long> range = store.all()) {
-            while (range.hasNext()) {
-                KeyValue<String, Long> next = range.next();
-                double countPercentages = (next.value * 100.0) / totalCount;
-                countPrecentages.put(next.key, countPercentages);
-            }
-            ctx.json(countPrecentages);
-
-        } catch (Exception e) {
-            // log error
-            log.error("Could not get {} count: {}", countType, e);
+        while (it.hasNext()) {
+            KeyValue<String, Long> next = it.next();
+            counts.put(next.key, next.value);
         }
+
+        ctx.json(counts);
+
+
+//        /* get overall count */
+//        String storeName = String.join("-", Arrays.asList(time, "all", countType));
+//        this.<Long>getKey(streams, hostInfo, ctx, storeName, ""); // key is: ""
+//        long totalCount = Long.parseLong(Objects.requireNonNull(ctx.resultString()));
+//
+//        /* get every count */
+//        Map<String, Double> countPrecentages = new HashMap<>();
+//
+//        storeName = String.join("-", Arrays.asList(time, filter, countType));
+//
+//        ReadOnlyKeyValueStore<String, Long> store =
+//                streams.store(
+//                        StoreQueryParameters.fromNameAndType(storeName, QueryableStoreTypes.keyValueStore()));
+//
+//        try (KeyValueIterator<String, Long> range = store.all()) {
+//            while (range.hasNext()) {
+//                KeyValue<String, Long> next = range.next();
+//                double countPercentages = (next.value * 100.0) / totalCount;
+//                countPrecentages.put(next.key, countPercentages);
+//            }
+//            ctx.json(countPrecentages);
+//
+//        } catch (Exception e) {
+//            // log error
+//            log.error("Could not get {} count: {}", countType, e);
+//        }
     }
 
     void getKeyMostActiveUsers(Context ctx) {

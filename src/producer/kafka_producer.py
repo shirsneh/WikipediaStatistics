@@ -1,9 +1,13 @@
 import argparse
-from event_types import *
 import json
+
 from sseclient import SSEClient as EventSource
 from kafka import KafkaProducer
 from kafka.errors import NoBrokersAvailable
+
+from src.producer.event_types import WikiEvent
+import dataclasses
+import logging
 
 
 def create_kafka_producer(bootstrap_server):
@@ -11,14 +15,14 @@ def create_kafka_producer(bootstrap_server):
         kafka_producer = KafkaProducer(bootstrap_servers=bootstrap_server,
                                        value_serializer=lambda x: json.dumps(x).encode('utf-8'))
     except NoBrokersAvailable:
-        print('No broker found at {}'.format(bootstrap_server))
+        logging.error('No broker found at {}'.format(bootstrap_server))
         raise
 
     if kafka_producer.bootstrap_connected():
-        print('Kafka producer connected!')
+        logging.info('Kafka producer connected!')
         return kafka_producer
     else:
-        print('Failed to establish connection!')
+        logging.error('Failed to establish connection!')
         exit(1)
 
 
@@ -53,7 +57,7 @@ def init_namespaces():
 def parse_command_line_arguments():
     parser = argparse.ArgumentParser(description='EventStreams Kafka producer')
 
-    parser.add_argument('--bootstrap-server', default='localhost:9092', help='Kafka bootstrap broker(s) (host[:port])',
+    parser.add_argument('--bootstrap-server', default='localhost:29092', help='Kafka bootstrap broker(s) (host[:port])',
                         type=str)
     parser.add_argument('--topic-name', default='wikipedia-events', help='Destination topic name', type=str)
     parser.add_argument('--events-to-produce', help='Kill producer after N events have been produced', type=int,
@@ -72,11 +76,10 @@ def process_events(topic_name: str, producer):
 
     filtered_events = ['edit', 'create']
     messages_count = 0
-    print('Messages are being published to Kafka topic')
 
     for url in urls:
         for event in EventSource(url):
-            if event.event == 'message':
+            if event.event == 'message' and len(event.data) > 0:
                 try:
                     event_data = json.loads(event.data)
                 except ValueError:
@@ -85,7 +88,7 @@ def process_events(topic_name: str, producer):
                     try:
                         if event_data['type'] in filtered_events:
                             event_to_send = WikiEvent(event_data)
-                            producer.send(topic_name, value=event_to_send.toJSON())
+                            producer.send(topic_name, value=event_to_send.__dict__)
                     except KeyError:
                         pass
 

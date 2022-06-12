@@ -26,13 +26,12 @@ class App {
         props.put(StreamsConfig.APPLICATION_SERVER_CONFIG, endpoint);
         props.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
 
-        // to accept messages of large size
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
-        props.put(StreamsConfig.producerPrefix(ProducerConfig.BUFFER_MEMORY_CONFIG), "40926120");
-        props.put(StreamsConfig.producerPrefix(ProducerConfig.MAX_REQUEST_SIZE_CONFIG), "389715629");
-        props.put(StreamsConfig.consumerPrefix(ConsumerConfig.FETCH_MAX_BYTES_CONFIG), "39976820");
+        props.put(StreamsConfig.producerPrefix(ProducerConfig.BUFFER_MEMORY_CONFIG), "30971520");
+        props.put(StreamsConfig.producerPrefix(ProducerConfig.MAX_REQUEST_SIZE_CONFIG), "40971520");
+        props.put(StreamsConfig.consumerPrefix(ConsumerConfig.FETCH_MAX_BYTES_CONFIG), "40971520");
         props.put(
-                StreamsConfig.consumerPrefix(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG), "38678260");
+                StreamsConfig.consumerPrefix(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG), "40971520");
 
         // build the topology
         System.out.println("Starting Wiki Statistics Application");

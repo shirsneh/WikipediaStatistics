@@ -1,16 +1,18 @@
 import json
 from dataclasses import dataclass
+# from dataclasses_json import dataclass_json
+
 from pprint import pprint
 from urllib.parse import urlparse
 
-lang_codes = json.loads(open('langs.json', encoding="utf8").read())
+lang_codes = json.load(open('langs.json', encoding="utf8"))
 
 TOPIC_URLs = {'recentchange': "https://stream.wikimedia.org/v2/stream/mediawiki.recentchange",
               'revision': "https://stream.wikimedia.org/v2/stream/mediawiki.page-create"}
 
-
+# @dataclass_json
 @dataclass
-class WikiEvent():
+class WikiEvent:
     event_type: str
     event_id: int
     timestamp: str
@@ -18,10 +20,10 @@ class WikiEvent():
     user_type: str
     language: str
     title: str
+    is_revert: bool
 
     def __init__(self, event_data):
-        url = event_data['meta']['uri']
-        if url == TOPIC_URLs['recentchange']:
+        if "page-create" in event_data["$schema"]:
             self.event_type = "new"
             self.event_id = event_data['rev_id']
             self.timestamp = event_data['meta']['dt']
@@ -31,12 +33,12 @@ class WikiEvent():
             self.title = event_data['page_title']
             self.is_revert = event_data['rev_is_revert']
         else:
-            self.title = event_data['page_title']
+            self.event_type = "edit"
+            self.title = event_data['title']
             self.user_type = "bot" if event_data['bot'] else "user"
             self.username = event_data['user']
             self.is_revert = False
             self.language = self.get_language(urlparse(event_data["meta"]["uri"]).netloc)
-            self.event_type = "edit"
             self.event_id = event_data['id']
             self.timestamp = event_data['meta']['dt']
 
@@ -52,6 +54,6 @@ class WikiEvent():
         return "English"
 
     def toJSON(self):
-        jsonStr = json.dumps(self.__dict__, sort_keys=True, indent=4).encode('utf-8')
-        pprint(jsonStr)
-        return jsonStr
+        json_str = json.dumps(self.__dict__, sort_keys=True, indent=4)
+        pprint(json_str)
+        return json_str
