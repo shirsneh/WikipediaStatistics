@@ -30,16 +30,35 @@ python3 wikipedia-statistics/src/main/python/kafka_Producer.py --bootstrap-serve
 You should see the producer being killed after 100 events.
 
 ## Queries
-Now you can query the API for results:
 
+### Parameters
+| Parameter   | Applies to   | Values                  |
+| ----------- | ----------   | -----------             |
+| time        | all requests | hour, week, month, year |
+| filter      | all requests | all, per-lang, per-user-type |
+| action      | all requests | countPagesCreated, countPagesModified, mostActiveUsers, mostActivePages |
+| filterParam | mostActive requests | bot, user / English, Spanish, etc... |
+
+### Simple Counts
 ```
-localhost:8000/api.wikiStats/{time}/{split-types}/{action}
+http://localhost:8000/wiki.stats/{time}/{filter}/{type}
 ```
-time: year, month, day, hour
+for example, quering counts of new pages created last month:
+`http://localhost:8000/wiki.stats/month/all/countPagesCreated`
 
-split-types: all, per-language, per-user-type
+### Most Active Users
+```
+http://localhost:8000/wiki.stats/{time}/{filter}/{filterParam}/{type}
+```
+for example, quering top users last week which are not bots:
+`http://localhost:8000/wiki.stats/week/all/user/mostActiveUsers`
 
-action: countPagesCreated/Modified
+### Most Active Pages
+```
+http://localhost:8000/wiki.stats/{time}/{filter}/{filterParam}/{type}
+```
+for example, quering top pages last week in English:
+`http://localhost:8000/wiki.stats/week/all/English/mostActivePages`
 
 
 
