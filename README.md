@@ -14,10 +14,16 @@ sudo docker-compose up
 And wait for them to be up and running.
 
 ### Kafka Streams
-Run via gradlew, or even better, open it up in Intellij, and select gradle config.
+The Kafka Streams is a Gradle project, the most convenient way to open it is using IntellIJ and run `main` from there.
+
+If you don't own IntellIJ you can run it using CLI:
+```
+./gradlew
+./gradlew run
+```
 
 ### Kafka Producer
-Install requirements defined in `requirements.txt`:
+ONE TIME ONLY - Install requirements defined in `requirements.txt`:
 
 ```bash
 python3 -m pip install -r requirements.txt
@@ -25,7 +31,7 @@ python3 -m pip install -r requirements.txt
 
 Run script:
 ```bash
-python3 wikipedia-statistics/src/main/python/kafka_Producer.py --bootstrap-server localhost:29092 --topic-name wikipedia-events --events-to-produce 1000
+python3 wikipedia-statistics/src/main/python/kafka_Producer.py --bootstrap-server localhost:29092 --topic-name wikipedia-events --events-to-produce 100
 ```
 You should see the producer being killed after 100 events.
 
@@ -34,34 +40,38 @@ You should see the producer being killed after 100 events.
 ### Parameters
 | Parameter   | Applies to   | Values                  |
 | ----------- | ----------   | -----------             |
-| time        | all requests | hour, week, month, year |
-| filter      | all requests | all, per-lang, per-user-type |
-| action      | all requests | countPagesCreated, countPagesModified, mostActiveUsers, mostActivePages |
-| filterParam | mostActive requests | bot, user / English, Spanish, etc... |
+| filter      | all requests | all,lang, user-type |
+| action      | all requests | count,count-revert, mostActiveUsers, mostActivePages |
+| type        | count requests | edit, create
 
 ### Simple Counts
-`http://localhost:8000/wiki.stats/{time}/{filter}/{type}`
+`http://localhost:8000/wiki.stats/count/{type}/{filter}`
 
-for example, quering counts of new pages created last month:
+for example, quering counts of new pages by language:
 ```
-http://localhost:8000/wiki.stats/month/all/countPagesCreated
+http://localhost:8000/wiki.stats/count/edit/lang
 ```
 
 ### Most Active Users
-`http://localhost:8000/wiki.stats/{time}/{filter}/{filterParam}/{type}`
+`http://localhost:8000/wiki.stats/mostActiveUsers/{filter}`
 
-for example, quering top users last week which are not bots:
+for example, quering top users by language:
 ```
-http://localhost:8000/wiki.stats/week/all/user/mostActiveUsers
+http://localhost:8000/wiki.stats/mostActiveUsers/lang
 ```
 
 ### Most Active Pages
-`http://localhost:8000/wiki.stats/{time}/{filter}/{filterParam}/{type}`
+`http://localhost:8000/wiki.stats/mostActivePages/{filter}`
 
-for example, quering top pages last week in English:
+for example, quering top pages by language:
 ```
-http://localhost:8000/wiki.stats/week/all/English/mostActivePages
+http://localhost:8000/wiki.stats/mostActivePages/lang
 ```
+
+## Produce Test Data
+Wikipedia doesn't always have all types of events, so we created some test json events.
+
+
 
 
 
