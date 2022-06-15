@@ -10,7 +10,7 @@ import org.apache.kafka.streams.state.HostInfo;
 
 class App {
   public static void main(String[] args) {
-    Topology topology = PatientMonitoringTopology.build("wikipedia-events");
+    Topology topology = WikiStatsTopology.build("wikipedia-events");
 
     // we allow the following system properties to be overridden
     String host = "localhost";

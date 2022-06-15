@@ -23,7 +23,7 @@ class WikiEvent:
     is_revert: bool
 
     def __init__(self, event_data):
-        if "page-create" in event_data["$schema"]:
+        if "create" in event_data["$schema"]:
             self.event_type = "new"
             self.event_id = event_data['rev_id']
             self.timestamp = event_data['meta']['dt']
@@ -31,7 +31,7 @@ class WikiEvent:
             self.user_type = "bot" if event_data['performer']['user_is_bot'] else "user"
             self.language = self.get_language(urlparse(event_data["meta"]["uri"]).netloc)
             self.title = event_data['page_title']
-            self.is_revert = event_data['rev_is_revert']
+            self.is_revert = event_data.get('rev_is_revert', False)
         else:
             self.event_type = "edit"
             self.title = event_data['title']

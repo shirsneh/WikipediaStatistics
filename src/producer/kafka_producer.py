@@ -63,7 +63,9 @@ def parse_command_line_arguments():
     parser.add_argument('--topic-name', default='wikipedia-events', help='Destination topic name', type=str)
     parser.add_argument('--events-to-produce', help='Kill producer after N events have been produced', type=int,
                         default=1000)
-
+    #
+    # parser.add_argument('--test-data', default='False', help='Whether to load data from JSON file',
+    #                     type=bool)
     return parser.parse_args()
 
 
@@ -72,11 +74,13 @@ def process_events(topic_name: str, producer):
     Processes events from EventsSource of Wikipedia.
     :return:
     """
-    urls = ["https://stream.wikimedia.org/v2/stream/mediawiki.recentchange",
-            "https://stream.wikimedia.org/v2/stream/mediawiki.page-create"]
+    urls = ["https://stream.wikimedia.org/v2/stream/mediawiki.page-create",
+            "https://stream.wikimedia.org/v2/stream/mediawiki.recentchange"
+            ]
 
     filtered_events = ['edit', 'create']
     messages_count = 0
+    first_switch = True
 
     for url in urls:
         for event in EventSource(url):
@@ -87,14 +91,17 @@ def process_events(topic_name: str, producer):
                     pass
                 else:
                     try:
-                        if event_data['type'] in filtered_events:
-                            event_to_send = WikiEvent(event_data)
-                            producer.send(topic_name, value=event_to_send.__dict__,
-                                          key=event_to_send.event_type.encode())
-                            pprint(event_to_send)
-                            messages_count += 1
+                        event_to_send = WikiEvent(event_data)
+                        producer.send(topic_name, value=event_to_send.__dict__,
+                                      key=event_to_send.event_type.encode())
+                        pprint(event_to_send)
+                        messages_count += 1
                     except KeyError:
                         pass
+
+            if first_switch and messages_count == args.events_to_produce // 2:
+                first_switch = False
+                break
 
             if messages_count >= args.events_to_produce:
                 print('Producer will be killed as {} events were produced'.format(args.events_to_produce))

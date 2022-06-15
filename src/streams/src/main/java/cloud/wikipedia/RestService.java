@@ -161,12 +161,12 @@ class RestService {
       ctx.status(404);
     }
 
-    List<WikiUser> output = null;
+    HashMap<String, List<WikiUser>> output = new HashMap<>();
     KeyValueIterator<String, MostActive<WikiUser>> it = getMostActiveUsersStore(filter).all();
 
     while (it.hasNext()) {
       KeyValue<String, MostActive<WikiUser>> obj = it.next();
-      output = obj.value.toList();
+      output.put(obj.key, obj.value.toList());
     }
 
     it.close();
@@ -193,60 +193,4 @@ class RestService {
     assert output != null;
     ctx.json(output);
   }
-
-  //  void getAllInRange(Context ctx) {
-  //    List<Map<String, Object>> bpms = new ArrayList<>();
-  //
-  //    String from = ctx.pathParam("from");
-  //    String to = ctx.pathParam("to");
-  //
-  //    Instant fromTime = Instant.ofEpochMilli(Long.parseLong(from));
-  //    Instant toTime = Instant.ofEpochMilli(Long.parseLong(to));
-  //
-  //    KeyValueIterator<Windowed<String>, Long> range = getBpmStore().fetchAll(fromTime, toTime);
-  //    while (range.hasNext()) {
-  //      Map<String, Object> bpm = new HashMap<>();
-  //      KeyValue<Windowed<String>, Long> next = range.next();
-  //      String key = next.key.key();
-  //      Window window = next.key.window();
-  //      Long start = window.start();
-  //      Long end = window.end();
-  //      Long count = next.value;
-  //      bpm.put("key", key);
-  //      bpm.put("start", Instant.ofEpochMilli(start).toString());
-  //      bpm.put("end", Instant.ofEpochMilli(end).toString());
-  //      bpm.put("count", count);
-  //      bpms.add(bpm);
-  //    }
-  //    // close the iterator to avoid memory leaks
-  //    range.close();
-  //    // return a JSON response
-  //    ctx.json(bpms);
-  //  }
-  //
-  //  void getRange(Context ctx) {
-  //    List<Map<String, Object>> bpms = new ArrayList<>();
-  //
-  //    String key = ctx.pathParam("key");
-  //    String from = ctx.pathParam("from");
-  //    String to = ctx.pathParam("to");
-  //
-  //    Instant fromTime = Instant.ofEpochMilli(Long.valueOf(from));
-  //    Instant toTime = Instant.ofEpochMilli(Long.valueOf(to));
-  //
-  //    WindowStoreIterator<Long> range = getBpmStore().fetch(key, fromTime, toTime);
-  //    while (range.hasNext()) {
-  //      Map<String, Object> bpm = new HashMap<>();
-  //      KeyValue<Long, Long> next = range.next();
-  //      Long timestamp = next.key;
-  //      Long count = next.value;
-  //      bpm.put("timestamp", Instant.ofEpochMilli(timestamp).toString());
-  //      bpm.put("count", count);
-  //      bpms.add(bpm);
-  //    }
-  //    // close the iterator to avoid memory leaks
-  //    range.close();
-  //    // return a JSON response
-  //    ctx.json(bpms);
-  //  }
 }
