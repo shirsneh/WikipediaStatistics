@@ -71,6 +71,10 @@ http://localhost:8000/wiki.stats/mostActivePages/lang
 ## Produce Test Data
 Wikipedia doesn't always have all types of events, so we created some test json events.
 
+## References
+- We got a lot of help from the book `Mastering Kafka streams and ksqldb`, especially from chapters 4,5.
+- We used [this](https://towardsdatascience.com/introduction-to-apache-kafka-with-wikipedias-eventstreams-service-d06d4628e8d9) tutorial to create the Kafka Producer in Python
+
 
 
 
