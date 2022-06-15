@@ -41,7 +41,7 @@ Note: Most recommended to run with Postman to prettify JSON - we aren't really g
 ### Parameters
 | Parameter   | Applies to   | Values                  |
 | ----------- | ----------   | -----------             |
-| filter      | all requests | all,lang, user-type |
+| filter      | all requests | all,lang, user-type, hour, week, month, year |
 | action      | all requests | count,count-revert, mostActiveUsers, mostActivePages |
 | type        | count requests | edit, create
 
