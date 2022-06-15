@@ -1,5 +1,6 @@
 import argparse
 import json
+from pprint import pprint
 
 from sseclient import SSEClient as EventSource
 from kafka import KafkaProducer
@@ -88,11 +89,12 @@ def process_events(topic_name: str, producer):
                     try:
                         if event_data['type'] in filtered_events:
                             event_to_send = WikiEvent(event_data)
-                            producer.send(topic_name, value=event_to_send.__dict__)
+                            producer.send(topic_name, value=event_to_send.__dict__,
+                                          key=event_to_send.event_type.encode())
+                            pprint(event_to_send)
+                            messages_count += 1
                     except KeyError:
                         pass
-
-                    messages_count += 1
 
             if messages_count >= args.events_to_produce:
                 print('Producer will be killed as {} events were produced'.format(args.events_to_produce))
