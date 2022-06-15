@@ -69,8 +69,8 @@ for example, quering top pages by language:
 http://localhost:9000/wiki.stats/mostActivePages/lang
 ```
 
-## Produce Test Data
-Wikipedia doesn't always have all types of events, so we created some test json events.
+<!-- ## Produce Test Data
+Wikipedia doesn't always have all types of events, so we created some test json events. -->
 
 ## References
 - We got a lot of help from the book `Mastering Kafka streams and ksqldb`, especially from chapters 4,5.
