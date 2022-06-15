@@ -36,6 +36,7 @@ python3 wikipedia-statistics/src/main/python/kafka_Producer.py --bootstrap-serve
 You should see the producer being killed after 100 events.
 
 ## Queries
+Note: Most recommended to run with Postman to prettify JSON - we aren't really good with frontedn and JS :(
 
 ### Parameters
 | Parameter   | Applies to   | Values                  |
