@@ -45,27 +45,27 @@ You should see the producer being killed after 100 events.
 | type        | count requests | edit, create
 
 ### Simple Counts
-`http://localhost:8000/wiki.stats/count/{type}/{filter}`
+`http://localhost:9000/wiki.stats/count/{type}/{filter}`
 
 for example, quering counts of new pages by language:
 ```
-http://localhost:8000/wiki.stats/count/edit/lang
+http://localhost:9000/wiki.stats/count/edit/lang
 ```
 
 ### Most Active Users
-`http://localhost:8000/wiki.stats/mostActiveUsers/{filter}`
+`http://localhost:9000/wiki.stats/mostActiveUsers/{filter}`
 
 for example, quering top users by language:
 ```
-http://localhost:8000/wiki.stats/mostActiveUsers/lang
+http://localhost:9000/wiki.stats/mostActiveUsers/lang
 ```
 
 ### Most Active Pages
-`http://localhost:8000/wiki.stats/mostActivePages/{filter}`
+`http://localhost:9000/wiki.stats/mostActivePages/{filter}`
 
 for example, quering top pages by language:
 ```
-http://localhost:8000/wiki.stats/mostActivePages/lang
+http://localhost:9000/wiki.stats/mostActivePages/lang
 ```
 
 ## Produce Test Data
