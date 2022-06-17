@@ -1,32 +1,34 @@
 package cloud.wikipedia.model;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MostActive<K extends WikiObject> {
-  private final TreeSet<K> mostActive = new TreeSet<>();
+  private final HashMap<String, K> mostActive = new HashMap<>();
 
   public MostActive<K> add(final K enriched) {
-    mostActive.add(enriched);
-
-    // keep only the top 5 high scores
-    if (mostActive.size() > Utils.MOST_ACTIVE_LIMIT) {
-      mostActive.remove(mostActive.last());
+    if (mostActive.containsKey(enriched.name)) {
+      enriched.setCounter(enriched.counter + mostActive.get(enriched.name).counter);
     }
-
+    mostActive.put(enriched.name, enriched);
     return this;
   }
 
   public List<K> toList() {
-    Iterator<K> objects = mostActive.iterator();
-    List<K> objectScores = new ArrayList<>();
+    List<K> most = new ArrayList<>(mostActive.values());
+    most.sort((k, t1) -> Integer.compare(t1.counter, k.counter));
 
-    while (objects.hasNext()) {
-      objectScores.add(objects.next());
-    }
+    List<K> topN = most.stream().limit(Utils.MOST_ACTIVE_LIMIT).collect(Collectors.toList());
 
-    return objectScores;
+    //
+    //
+    //        Iterator<K> objects = mostActive.iterator();
+    //        List<K> objectScores = new ArrayList<>();
+    //
+    //        while (objects.hasNext()) {
+    //            objectScores.add(objects.next());
+    //        }
+
+    return topN;
   }
 }
