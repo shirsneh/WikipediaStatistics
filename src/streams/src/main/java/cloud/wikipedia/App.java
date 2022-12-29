@@ -31,7 +31,7 @@ class App {
         StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, WallclockTimestampExtractor.class);
 
     // build the topology
-    System.out.println("Starting Patient Monitoring Application");
+    System.out.println("Starting Monitoring Application");
     KafkaStreams streams = new KafkaStreams(topology, props);
     // close Kafka Streams when the JVM shuts down (e.g. SIGTERM)
     Runtime.getRuntime().addShutdownHook(new Thread(streams::close));

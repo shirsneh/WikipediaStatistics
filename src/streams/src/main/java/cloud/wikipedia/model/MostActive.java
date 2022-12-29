@@ -20,15 +20,6 @@ public class MostActive<K extends WikiObject> {
 
     List<K> topN = most.stream().limit(Utils.MOST_ACTIVE_LIMIT).collect(Collectors.toList());
 
-    //
-    //
-    //        Iterator<K> objects = mostActive.iterator();
-    //        List<K> objectScores = new ArrayList<>();
-    //
-    //        while (objects.hasNext()) {
-    //            objectScores.add(objects.next());
-    //        }
-
     return topN;
   }
 }
